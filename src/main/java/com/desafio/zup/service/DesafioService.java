@@ -28,7 +28,7 @@ import java.util.Optional;
 @Import(FeignClientsConfiguration.class)
 public class DesafioService {
     //Variavel para armazenar os Autores do livro
-    private String creators;
+    private String creators = new String();
     private final ComicFeignInterface comicFeignInterface;
     private final ComicRepository comicRepository;
     private final UsuarioRepository usuarioRepository;
