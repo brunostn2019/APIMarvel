@@ -28,7 +28,7 @@ import java.util.Optional;
 @Import(FeignClientsConfiguration.class)
 public class DesafioService {
     //Variavel para armazenar os Autores do livro
-    private String creators = new String();
+    private String creators;
     private final ComicFeignInterface comicFeignInterface;
     private final ComicRepository comicRepository;
     private final UsuarioRepository usuarioRepository;
@@ -105,11 +105,15 @@ public class DesafioService {
             String precoDigital;
             String precoImpresso;
 
-            if (precos.size() > 0 && precos.size() == 2) {
+            if (precos.size() == 2) {
                 precoDigital = String.valueOf(precos.get(1).get("price"));
                 precoImpresso = String.valueOf(precos.get(0).get("price"));
-            } else {
+            } else if (precos.size() == 1){
                 precoImpresso = String.valueOf(precos.get(0).get("price"));
+                precoDigital = "0";
+            }else
+            {
+                precoImpresso = "0";
                 precoDigital = "0";
             }
 
@@ -187,14 +191,14 @@ public class DesafioService {
         } else {//se a chave existir faça:
 
             //Atribiu o valor encontrado ao retorno do método no caso dos Autores
-            if (nomeChave == "fullName")
-                this.creators += String.valueOf(objetoJSON.get(nomeChave)) + ", ";
+            if (nomeChave.equals("fullName"))
+                this.creators += objetoJSON.get(nomeChave) + ", ";
             else
                 //Atribiu o valor encontrado ao retorno do método
                 valorChave = String.valueOf(objetoJSON.get(nomeChave));
         }
 
-        if (nomeChave == "fullName")
+        if (nomeChave.equals("fullName"))
             return this.creators;
 
         return valorChave;
@@ -204,7 +208,7 @@ public class DesafioService {
     private boolean verificaDescontoAtivo(DayOfWeek diaDesconto) {
         boolean descontoAtivo = false;
         if (diaDesconto != null) {
-         descontoAtivo = diaDesconto == LocalDate.now().getDayOfWeek() ? true : false;
+         descontoAtivo = diaDesconto == LocalDate.now().getDayOfWeek();
         }
         return descontoAtivo;
     }
@@ -251,6 +255,11 @@ public class DesafioService {
         if (!classeUtil.isCPF(comic.getUsuario().getCpf()))
             throw new IllegalArgumentException("CPF inválido!");
 
+        Optional<Comic> optionalComic = comicRepository.findByIdAndCpf(comic.getComicId(),comic.getUsuario());
+
+        if(optionalComic.isPresent())
+            throw new IllegalArgumentException("comic já cadastrado para este usuário!");
+
         try {
             comic = getComicFeign(comic);
         } catch (Exception e) {
@@ -291,7 +300,7 @@ public class DesafioService {
         if (!classeUtil.isCPF(cpf))
             throw new IllegalArgumentException("CPF inválido!");
 
-        Usuario usuario = new Usuario();
+        Usuario usuario;
         UsuarioComics usuarioComics = new UsuarioComics();
         try {
             usuario = usuarioRepository.findByCpf(cpf);
@@ -309,5 +318,7 @@ public class DesafioService {
         return usuarioComics;
     }
 
-
+    public List<Usuario> getUsuarios() {
+        return usuarioRepository.findAll();
+    }
 }

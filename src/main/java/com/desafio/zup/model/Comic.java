@@ -1,8 +1,9 @@
 package com.desafio.zup.model;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+
 import javax.persistence.*;
-import javax.validation.constraints.NotBlank;
 import java.text.DecimalFormat;
 import java.time.DayOfWeek;
 
@@ -18,8 +19,9 @@ public class Comic {
     )
     @SequenceGenerator(name = "comic_generator",sequenceName = "comic_generator",allocationSize = 1)
     private Long id;
-    @NotBlank
+
     private Long comicId;
+
     private String title;
     private String priceImpresso;
     private String priceDigital;
@@ -99,7 +101,7 @@ public class Comic {
 
     public String getPriceImpresso() {
 
-        if (this.descontoAtivo == true) {
+        if (this.descontoAtivo) {
             Double precoImpressoD = Double.valueOf(priceImpresso);
             precoImpressoD = precoImpressoD * 0.9;
             DecimalFormat df = new DecimalFormat("0.00");
@@ -114,7 +116,7 @@ public class Comic {
 
 
     public String getPriceDigital() {
-        if (this.descontoAtivo == true) {
+        if (this.descontoAtivo ) {
             Double priceDigitalD = Double.valueOf(priceDigital);
             priceDigitalD = priceDigitalD * 0.9;
             DecimalFormat df = new DecimalFormat("0.00");

@@ -1,6 +1,9 @@
 package com.desafio.zup.model;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import io.swagger.annotations.ApiModelProperty;
+
 import javax.persistence.*;
 import java.time.LocalDate;
 import java.util.List;
@@ -12,13 +15,18 @@ public class Usuario {
 
     @Id
     @Column(unique = true)
+
     private String cpf;
+
     private String nome;
+
     @Column(unique = true)
     private String email;
+
     private LocalDate dataNascimento;
     @JsonIgnore
     @OneToMany(mappedBy = "usuario")
+    @ApiModelProperty(hidden = true)
     private List<Comic> comics;
 
     public String getCpf() {
@@ -54,11 +62,13 @@ public class Usuario {
     }
 
     @JsonIgnore
+    @ApiModelProperty(hidden = true)
     public List<Comic> getComics() {
         return comics;
     }
 
     @JsonProperty
+    @ApiModelProperty(hidden = true)
     public void setComics(List<Comic> comics) {
         this.comics = comics;
     }
