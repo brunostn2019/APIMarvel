@@ -6,7 +6,7 @@ import java.util.InputMismatchException;
 @Service
 public class ClasseUtil {
 //métodos de validação de CPF copiados da internet. Fonte: https://www.devmedia.com.br/validando-o-cpf-em-uma-aplicacao-java/22097
-    public static boolean isCPF(String CPF) {
+    public boolean isCPF(String CPF) {
         if  (CPF.length() != 11)
         {
             throw new IllegalArgumentException("CPF deve ter 11 dígitos!");
@@ -17,8 +17,7 @@ public class ClasseUtil {
                 CPF.equals("22222222222") || CPF.equals("33333333333") ||
                 CPF.equals("44444444444") || CPF.equals("55555555555") ||
                 CPF.equals("66666666666") || CPF.equals("77777777777") ||
-                CPF.equals("88888888888") || CPF.equals("99999999999") ||
-                (CPF.length() != 11))
+                CPF.equals("88888888888") || CPF.equals("99999999999") )
             return(false);
 
         char dig10, dig11;
@@ -33,7 +32,7 @@ public class ClasseUtil {
                 // converte o i-esimo caractere do CPF em um numero:
                 // por exemplo, transforma o caractere '0' no inteiro 0
                 // (48 eh a posicao de '0' na tabela ASCII)
-                num = (int)(CPF.charAt(i) - 48);
+                num = (CPF.charAt(i) - 48);
                 sm = sm + (num * peso);
                 peso = peso - 1;
             }
@@ -47,7 +46,7 @@ public class ClasseUtil {
             sm = 0;
             peso = 11;
             for(i=0; i<10; i++) {
-                num = (int)(CPF.charAt(i) - 48);
+                num = (CPF.charAt(i) - 48);
                 sm = sm + (num * peso);
                 peso = peso - 1;
             }
@@ -65,7 +64,7 @@ public class ClasseUtil {
             return(false);
         }
     }
-    public static String imprimeCPF(String CPF) {
+    public String imprimeCPF(String CPF) {
         return(CPF.substring(0, 3) + "." + CPF.substring(3, 6) + "." +
                 CPF.substring(6, 9) + "-" + CPF.substring(9, 11));
     }
