@@ -1,21 +1,17 @@
 package com.desafio.zup.controller;
-import com.desafio.zup.feign.ComicFeignInterface;
+
 import com.desafio.zup.service.DesafioService;
 import com.desafio.zup.model.Comic;
 import com.desafio.zup.model.Usuario;
 import com.desafio.zup.model.UsuarioComics;
-import feign.Feign;
-import feign.Target;
-import feign.codec.Decoder;
-import feign.codec.Encoder;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import java.util.List;
 
+import java.util.List;
 
 @RestController
 @RequestMapping("api/v1")
@@ -24,35 +20,22 @@ import java.util.List;
 public class DesafioController {
 
     private final DesafioService desafioService;
-    private final ComicFeignInterface comicFeignInterface;
 
     @Autowired
-    public DesafioController(DesafioService desafioService, Decoder decoder, Encoder encoder) {
+    public DesafioController(DesafioService desafioService) {
         this.desafioService = desafioService;
-        comicFeignInterface = Feign.builder().encoder(encoder).decoder(decoder)
-                .target(Target.EmptyTarget.create(ComicFeignInterface.class));
     }
 
     @PostMapping(path = "/usuarios")
     @ApiOperation(value = "Salva um usuário - CPF, nome, email e dataNascimento são obrigatórios.")
     public ResponseEntity<String> addUsuario(@RequestBody Usuario usuario) {
-        if(usuario.getCpf()==null
-                || usuario.getCpf().trim().isEmpty()
-                || usuario.getEmail()==null
-                || usuario.getEmail().trim().isEmpty()
-                || usuario.getNome()==null
-                || usuario.getNome().trim().isEmpty()
-                || usuario.getDataNascimento()==null
-        )
-        {
-            return new ResponseEntity<>("CPF, nome, email e dataNascimento são obrigatórios!", HttpStatus.BAD_REQUEST);
-        }
+
         try {
             desafioService.addUsuario(usuario);
         } catch (Exception e) {
             return new ResponseEntity<>("Ocorreu um erro ao salvar o usuário: " + e.getMessage(), HttpStatus.BAD_REQUEST);
         }
-        return new ResponseEntity<>("Sucesso: usuário cadastrado CPF: "+usuario.getCpf(), HttpStatus.CREATED);
+        return new ResponseEntity<>("Sucesso: usuário cadastrado CPF: " + usuario.getCpf(), HttpStatus.CREATED);
     }
 
     @GetMapping(path = "/comics/{cpf}")
@@ -61,32 +44,23 @@ public class DesafioController {
         return desafioService.getComicUsuario(cpfUsuario);
     }
 
-    @PostMapping(path = "/comics")
+    @PostMapping(path = "/comics/{comicId}/{cpf}")
     @ApiOperation(value = "Salva um comic para um usuário - comicId e CPF do usuário são obrigatórios.")
-    public ResponseEntity<String> addComic(@RequestBody Comic comic) {
-        if(comic.getComicId()==null
-                || comic.getComicId()==0
-                || comic.getUsuario().getCpf() == null
-                || comic.getUsuario().getCpf().trim().isEmpty()
-        )
-        {
-            return new ResponseEntity<>("comicId e CPF do usuário são obrigatórios!", HttpStatus.BAD_REQUEST);
-        }
+    public ResponseEntity<String> addComic(@PathVariable("comicId") Long comicId, @PathVariable("cpf") String cpfUsuario) {
 
         try {
-            desafioService.addComic(comic);
+            desafioService.addComic(comicId, cpfUsuario);
         } catch (Exception e) {
             return new ResponseEntity<>("Ocorreu um erro: " + e.getMessage(), HttpStatus.BAD_REQUEST);
         }
-        return new ResponseEntity<>("Sucesso: comic: "+ comic.getComicId() + " cadastrado para o usuário CPF: "+comic.getUsuario().getCpf(), HttpStatus.CREATED);
+        return new ResponseEntity<>("Sucesso: comic: " + comicId + " cadastrado para o usuário CPF: " + cpfUsuario, HttpStatus.CREATED);
 
     }
 
 
-
-    @GetMapping(path="/usuarios")
+    @GetMapping(path = "/usuarios")
     @ApiOperation(value = "Retorna todos os usuários cadastrados", hidden = true)
-    public List<Usuario> getUsuarios(){
+    public List<Usuario> getUsuarios() {
         return desafioService.getUsuarios();
     }
 

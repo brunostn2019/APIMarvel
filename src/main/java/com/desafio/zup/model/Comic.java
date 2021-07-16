@@ -1,40 +1,60 @@
 package com.desafio.zup.model;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-
 import javax.persistence.*;
 import java.text.DecimalFormat;
 import java.time.DayOfWeek;
 
 
-@Entity
-@Table
+@Entity(name = "Comic")
+@Table(name = "comic")
 public class Comic {
 
     @Id
-    @GeneratedValue(
-            strategy = GenerationType.SEQUENCE
-            , generator = "comic_generator"
+    @Column(
+            name = "comic_id",
+            updatable = false
     )
-    @SequenceGenerator(name = "comic_generator",sequenceName = "comic_generator",allocationSize = 1)
-    private Long id;
-
     private Long comicId;
-
+    @Column(
+            name = "title",
+            updatable = false
+    )
     private String title;
+    @Column(
+            name = "price_impresso",
+            updatable = false
+    )
     private String priceImpresso;
+    @Column(
+            name = "price_digital",
+            updatable = false
+    )
     private String priceDigital;
+    @Column(
+            name = "creators",
+            updatable = false
+    )
     private String creators;
+    @Column(
+            name = "description",
+            updatable = false
+    )
     @Lob
     private String description;
+    @Column(
+            name = "isbn",
+            updatable = false
+    )
     private String isbn;
     @ManyToOne
     @JsonIgnore
     private Usuario usuario;
     @Transient
     private boolean descontoAtivo;
-
+    @Column(
+            name = "dia_desconto"
+    )
     private DayOfWeek diaDesconto;
 
 
@@ -116,7 +136,7 @@ public class Comic {
 
 
     public String getPriceDigital() {
-        if (this.descontoAtivo ) {
+        if (this.descontoAtivo) {
             Double priceDigitalD = Double.valueOf(priceDigital);
             priceDigitalD = priceDigitalD * 0.9;
             DecimalFormat df = new DecimalFormat("0.00");

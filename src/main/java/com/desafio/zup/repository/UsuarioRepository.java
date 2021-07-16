@@ -6,7 +6,7 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 
 @Repository
-public interface UsuarioRepository extends JpaRepository<Usuario,Long> {
+public interface UsuarioRepository extends JpaRepository<Usuario,String> {
 @Query("SELECT u FROM Usuario u WHERE u.cpf = ?1")
 Usuario findByCpf(String cpf);
 

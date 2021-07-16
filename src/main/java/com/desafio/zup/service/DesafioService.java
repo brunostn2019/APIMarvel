@@ -1,4 +1,5 @@
 package com.desafio.zup.service;
+
 import com.desafio.zup.feign.ComicFeignInterface;
 import com.desafio.zup.model.Comic;
 import com.desafio.zup.model.Usuario;
@@ -15,7 +16,9 @@ import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.openfeign.FeignClientsConfiguration;
 import org.springframework.context.annotation.Import;
+
 import org.springframework.stereotype.Service;
+
 import java.net.URI;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
@@ -90,7 +93,7 @@ public class DesafioService {
                 comic.setIsbn(isbn);
                 diaDesconto = verificaDiaDesconto(isbn);
             }
-            if(diaDesconto!=null)
+            if (diaDesconto != null)
                 comic.setDiaDesconto(diaDesconto);
 
             List<JSONObject> precos = new ArrayList<>();
@@ -108,11 +111,10 @@ public class DesafioService {
             if (precos.size() == 2) {
                 precoDigital = String.valueOf(precos.get(1).get("price"));
                 precoImpresso = String.valueOf(precos.get(0).get("price"));
-            } else if (precos.size() == 1){
+            } else if (precos.size() == 1) {
                 precoImpresso = String.valueOf(precos.get(0).get("price"));
                 precoDigital = "0";
-            }else
-            {
+            } else {
                 precoImpresso = "0";
                 precoDigital = "0";
             }
@@ -208,10 +210,11 @@ public class DesafioService {
     private boolean verificaDescontoAtivo(DayOfWeek diaDesconto) {
         boolean descontoAtivo = false;
         if (diaDesconto != null) {
-         descontoAtivo = diaDesconto == LocalDate.now().getDayOfWeek();
+            descontoAtivo = diaDesconto == LocalDate.now().getDayOfWeek();
         }
         return descontoAtivo;
     }
+
     //método para verificar o dia de desconto para o comic de acordo com o último digito do isbn
     private DayOfWeek verificaDiaDesconto(String isbn) {
 
@@ -250,17 +253,28 @@ public class DesafioService {
         return diaDesconto;
     }
 
-    public void addComic(Comic comic) throws Exception {
+    public void addComic(Long comicId, String cpfUsuario) throws Exception {
 
-        if (!classeUtil.isCPF(comic.getUsuario().getCpf()))
-            throw new IllegalArgumentException("CPF inválido!");
+        if (
+                comicId == 0
+                        || cpfUsuario == null
+                        || cpfUsuario.trim().isEmpty()
+        ) {
+            throw new IllegalArgumentException("comicId e CPF do usuário são obrigatórios!");
+        }
 
-        Optional<Comic> optionalComic = comicRepository.findByIdAndCpf(comic.getComicId(),comic.getUsuario());
-
-        if(optionalComic.isPresent())
-            throw new IllegalArgumentException("comic já cadastrado para este usuário!");
+        Comic comic = new Comic(comicId, new Usuario(cpfUsuario));
 
         try {
+            if (!classeUtil.isCPF(comic.getUsuario().getCpf()))
+                throw new IllegalArgumentException("CPF inválido!");
+
+            Optional<Comic> optionalComic = comicRepository.findByIdAndCpf(comic.getComicId(), comic.getUsuario());
+
+            if (optionalComic.isPresent())
+                throw new IllegalArgumentException("comic já cadastrado para este usuário!");
+
+
             comic = getComicFeign(comic);
         } catch (Exception e) {
             throw new Exception("erro na busca: " + e.getMessage());
@@ -273,6 +287,16 @@ public class DesafioService {
     }
 
     public void addUsuario(Usuario usuario) throws Exception {
+        if (usuario.getCpf() == null
+                || usuario.getCpf().trim().isEmpty()
+                || usuario.getEmail() == null
+                || usuario.getEmail().trim().isEmpty()
+                || usuario.getNome() == null
+                || usuario.getNome().trim().isEmpty()
+                || usuario.getDataNascimento() == null
+        ) {
+            throw new IllegalArgumentException("CPF, nome, email e dataNascimento são obrigatórios!");
+        }
 
         if (!classeUtil.isCPF(usuario.getCpf()))
             throw new IllegalArgumentException("CPF inválido!");

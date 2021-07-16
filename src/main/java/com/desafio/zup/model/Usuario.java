@@ -1,33 +1,48 @@
 package com.desafio.zup.model;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.annotations.ApiModelProperty;
-
 import javax.persistence.*;
 import java.time.LocalDate;
 import java.util.List;
 
 
-@Entity
-@Table
+@Entity(name = "Usuario")
+@Table(
+        name = "usuario",
+        uniqueConstraints = {
+                @UniqueConstraint(name = "usuario_unique", columnNames = {"email"})
+        }
+)
 public class Usuario {
 
     @Id
-    @Column(unique = true)
-
+    @Column(
+            name = "cpf",
+            updatable = false
+    )
     private String cpf;
-
+    @Column(
+            name = "nome",
+            nullable = false
+    )
     private String nome;
 
-    @Column(unique = true)
+    @Column(
+            name = "email",
+            nullable = false
+    )
     private String email;
-
+    @Column(
+            name = "data_nascimento",
+            nullable = false
+    )
     private LocalDate dataNascimento;
     @JsonIgnore
     @OneToMany(mappedBy = "usuario")
     @ApiModelProperty(hidden = true)
     private List<Comic> comics;
+
 
     public String getCpf() {
         return cpf;
@@ -82,6 +97,10 @@ public class Usuario {
         this.email = email;
         this.dataNascimento = dataNascimento;
 
+    }
+
+    public Usuario(String cpf) {
+        this.cpf = cpf;
     }
 
     @Override
